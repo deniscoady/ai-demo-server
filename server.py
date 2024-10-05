@@ -8,56 +8,37 @@ import uvicorn
 
 class WhisperServer:
 
-    def __init__(self):
-      self.lock = False
-      self.file = None
-      self.time = None
+    def __init__(self, host = '0.0.0.0', port = 8000):
+      self.host = host
+      self.port = port
       self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+      print(f'WhisperServer:')
+      print(f'  device = {self.device}')
 
     async def transcribe(self, request):
-      if self.lock: web.Response(status = 429)
-      self.lock = True
-      data = await request.post()
-      file = data['file']
+      data  = await request.post()
+      file  = data['file']
       model = data['model']
       model = model if model != 'whisper-1' else 'distil-large-v3'
-      self.file = file.filename
-      self.time = datetime.now()
 
       print('')
-      print(f'{self.time}')
-      print(f'  filename = {self.file}')
+      print(f'{str(datetime.now())}')
+      print(f'  filename = {file.filename}')
       print(f'  model    = {model}')
 
       async with TemporaryFile(file) as filename:
         whisper = TranscriptionService(model, device = self.device)
         text    = whisper.transcribe(filename, 'vtt')
-        self.lock = False
         return web.json_response({'text' : text })
 
-      self.file = None      
-      self.lock = False
-      return web.Response(status = 500)
-
-    async def overview(self, request):
-      now = datetime.now() 
-      duration = timedelta(seconds = 0) if self.time == None else now - self.time
-      return web.json_response({
-        'lock': self.lock,
-        'file': self.file,
-        'time': str(duration)
-      })
-
-    def app(self):
+    def run(self):
       app = web.Application(client_max_size = 256 * 1024 * 1024)
-      app.router.add_get ('/', self.overview)
       app.router.add_post('/v1/audio/transcriptions', self.transcribe)
-      return app
+      web.run_app(app, host = self.host, port = self.port)
 
 
 
 # Run the web server
 if __name__ == '__main__':
   server = WhisperServer()
-  app    = server.app()
-  web.run_app(app, host = '0.0.0.0', port = 8000)
+  server.run()
