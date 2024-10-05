@@ -20,13 +20,12 @@ class WhisperServer:
       file  = data['file']
       model = data['model']
       model = model if model != 'whisper-1' else 'distil-large-v3'
-
-      print('')
-      print(f'{str(datetime.now())}')
-      print(f'  filename = {file.filename}')
-      print(f'  model    = {model}')
-
-      async with TemporaryFile(file) as filename:
+      async with TemporaryFile(file.file) as filename:
+        print('')
+        print(f'{str(datetime.now())}')
+        print(f'  orig filename = {file.filename}')
+        print(f'  temp filename = {filename}')
+        print(f'  model name    = {model}')
         whisper = TranscriptionService(model, device = self.device, batch_size = 48)
         text    = whisper.transcribe(filename, 'vtt')
         return web.json_response({'text' : text })
