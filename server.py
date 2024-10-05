@@ -35,7 +35,8 @@ class OpenAICompatibleServer:
       return web.Response(status = 500)
 
     async def overview(self, request):
-      duration = datetime.now() - self.time
+      now = datetime.now() 
+      duration = timedelta(seconds = 0) if self.time == None else now - self.time
       return web.json_response({
         'lock': self.lock,
         'file': self.file,
