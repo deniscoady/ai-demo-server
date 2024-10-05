@@ -3,19 +3,17 @@ from datetime import datetime, timedelta
 import torch
 from util.temp_file import TemporaryFile
 from whisper.transcription import TranscriptionService
+import uvicorn
 
 
+class WhisperServer:
 
-class OpenAICompatibleServer:
-
-    def __init__(self, host = '0.0.0.0', port = 8000):
-      self.host = host
-      self.port = port
+    def __init__(self):
       self.lock = False
       self.file = None
       self.time = None
       device  = 'cuda' if torch.cuda.is_available() else 'cpu'
-      self.whisper = TranscriptionService('distil-large-v3', device = device)
+      self.whisper = TranscriptionService('tiny.en', device = device)
 
     async def transcribe(self, request):
       if self.lock: web.Response(status = 429)
@@ -43,13 +41,16 @@ class OpenAICompatibleServer:
         'time': str(duration)
       })
 
-    def run(self):
+    def app(self):
       app = web.Application(client_max_size = 256 * 1024 * 1024)
       app.router.add_get ('/', self.overview)
       app.router.add_post('/v1/audio/transcriptions', self.transcribe)
-      web.run_app(app, host = self.host, port = self.port)
+      return app
+
+
+server = WhisperServer()
+app = server.app()
 
 # Run the web server
 if __name__ == '__main__':
-  server = OpenAICompatibleServer()
-  server.run()
+  web.run_app(app, host = '0.0.0.0', port = 8000)
