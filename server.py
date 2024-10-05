@@ -24,6 +24,11 @@ class WhisperServer:
       self.file = file.filename
       self.time = datetime.now()
 
+      print('')
+      print(f'{self.time}')
+      print(f'  filename = {self.file}')
+      print(f'  model    = {model}')
+
       async with TemporaryFile(file) as filename:
         whisper = TranscriptionService(model, device = self.device)
         text    = whisper.transcribe(filename, 'vtt')
@@ -50,9 +55,9 @@ class WhisperServer:
       return app
 
 
-server = WhisperServer()
-app = server.app()
 
 # Run the web server
 if __name__ == '__main__':
+  server = WhisperServer()
+  app    = server.app()
   web.run_app(app, host = '0.0.0.0', port = 8000)
