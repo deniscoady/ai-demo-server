@@ -26,9 +26,9 @@ class OpenAICompatibleServer:
       self.time = datetime.now()
 
       async with TemporaryFile(file) as filename:
-        json['text'] = self.whisper.transcribe(filename, 'vtt')
+        text = self.whisper.transcribe(filename, 'vtt')
         self.lock = False
-        return web.json_response(json)
+        return web.json_response({'text' : text })
 
       self.file = None      
       self.lock = False
