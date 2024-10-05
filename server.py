@@ -13,7 +13,7 @@ class OpenAICompatibleServer:
       self.port = port
       self.lock = False
       self.file = None
-      self.time = datetime.now()
+      self.time = None
       device  = 'cuda' if torch.cuda.is_available() else 'cpu'
       self.whisper = TranscriptionService('distil-large-v3', device = device)
 
@@ -23,6 +23,7 @@ class OpenAICompatibleServer:
       data = await request.post()
       file = data['file']
       self.file = file.filename
+      self.time = datetime.now()
 
       async with TemporaryFile(file) as filename:
         json['text'] = self.whisper.transcribe(filename, 'vtt')
@@ -34,10 +35,11 @@ class OpenAICompatibleServer:
       return web.Response(status = 500)
 
     async def overview(self, request):
+      duration = datetime.now() - self.time
       return web.json_response({
         'lock': self.lock,
         'file': self.file,
-        'time': str(self.time)
+        'time': str(duration)
       })
 
     def run(self):
