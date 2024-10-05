@@ -7,8 +7,8 @@ class TemporaryFile:
     mime = magic.Magic(mime = True)
     mime_type = mime.from_buffer(file.peek(2048))
     extension = self.get_file_extension(file)
-    print(f'mime type = {mime_type}')
-    self.temp = NamedTemporaryFile(delete = True, suffix = '.' + 'wav')
+    print(f'mime type = {extension}')
+    self.temp = NamedTemporaryFile(delete = True, suffix = '.' + extension)
     self.chunk_size = chunk_size
     self.max_file_size = max_file_size
     pass
