@@ -4,9 +4,11 @@ import magic
 class TemporaryFile:
   def __init__(self, file, chunk_size = 4096, max_file_size = 256 * 1024 * 1024):
     self.file = file
+    mime = magic.Magic(mime = True)
+    mime_type = mime.from_buffer(file.peek(2048))
     extension = self.get_file_extension(file)
-    print(f'mime type = {extension}')
-    self.temp = NamedTemporaryFile(delete = True, suffix = '.' + extension)
+    print(f'mime type = {mime_type}')
+    self.temp = NamedTemporaryFile(delete = True, suffix = '.' + 'wav')
     self.chunk_size = chunk_size
     self.max_file_size = max_file_size
     pass
