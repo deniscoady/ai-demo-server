@@ -12,19 +12,21 @@ class WhisperServer:
       self.lock = False
       self.file = None
       self.time = None
-      device  = 'cuda' if torch.cuda.is_available() else 'cpu'
-      self.whisper = TranscriptionService('tiny.en', device = device)
+      self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
     async def transcribe(self, request):
       if self.lock: web.Response(status = 429)
       self.lock = True
       data = await request.post()
       file = data['file']
+      model = data['model']
+      model = model if model != 'whisper-1' else 'distil-large-v3'
       self.file = file.filename
       self.time = datetime.now()
 
       async with TemporaryFile(file) as filename:
-        text = self.whisper.transcribe(filename, 'vtt')
+        whisper = TranscriptionService(model, device = self.device)
+        text    = whisper.transcribe(filename, 'vtt')
         self.lock = False
         return web.json_response({'text' : text })
 
