@@ -27,7 +27,7 @@ class WhisperServer:
       print(f'  model    = {model}')
 
       async with TemporaryFile(file) as filename:
-        whisper = TranscriptionService(model, device = self.device)
+        whisper = TranscriptionService(model, device = self.device, batch_size = 48)
         text    = whisper.transcribe(filename, 'vtt')
         return web.json_response({'text' : text })
 

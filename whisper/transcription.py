@@ -3,7 +3,7 @@ from .output_format import OutputFormat, WebvttOutputFormat
 
 
 class TranscriptionService:
-  def __init__(self, model_name, device = "cuda", beam_size = 5, batch_size = 32):
+  def __init__(self, model_name, device = "cuda", beam_size = 5, batch_size = 1):
     self.beam_size  = beam_size
     self.batch_size = batch_size
     self.pipeline   = BatchedInferencePipeline(WhisperModel(model_name, 
