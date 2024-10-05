@@ -20,11 +20,9 @@ class OpenAICompatibleServer:
     async def transcribe(self, request):
       if self.lock: web.Response(status = 429)
       self.lock = True
-      self.file = data['file'].filename
-
       data = await request.post()
       file = data['file']
-      json = {}
+      self.file = file.filename
 
       async with TemporaryFile(file) as filename:
         json['text'] = self.whisper.transcribe(filename, 'vtt')
