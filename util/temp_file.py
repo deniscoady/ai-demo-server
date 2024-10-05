@@ -3,7 +3,7 @@ from tempfile import NamedTemporaryFile
 class TemporaryFile:
   def __init__(self, file, chunk_size = 4096, max_file_size = 256 * 1024 * 1024):
     self.file = file.file
-    self.temp = NamedTemporaryFile(delete = True, suffix = file.filename)
+    self.temp = NamedTemporaryFile(delete = True)
     self.chunk_size = chunk_size
     self.max_file_size = max_file_size
     pass
